@@ -3,12 +3,12 @@ import urllib
 import urllib2
 import cookielib
 
-baseurl = "http://www.bright-shadows.net"
-
-class PageGetter(object):
-	def __init__(self, cookiefile):
+class WebUtils(object):
+	def __init__(self, cookiefile, baseUrl):
 		self.cj = cookielib.MozillaCookieJar(cookiefile)
-		
+		self.baseUrl = baseUrl
+
+		print "baseurl = ",self.baseUrl
 		if(os.access(cookiefile, os.F_OK)):
 			self.cj.load()
 
@@ -22,13 +22,14 @@ class PageGetter(object):
 
 	def getPNG(self, pagePath, targetFilename):
 		print "reading path " + pagePath
-		response = self.opener.open(baseurl + pagePath)		
+		response = self.opener.open(self.baseUrl + pagePath)		
 		pic = response.read()
 		fout = open(targetFilename, "wb")
 		fout.write(pic)
 		fout.close()
 
 		print "file written to " + targetFilename
+
 	def getHTML(self, pagePath):
-		response = self.opener.open(baseurl + pagePath)		
+		response = self.opener.open(self.baseUrl + pagePath)		
 		return ''.join(response.readlines())

@@ -6,7 +6,7 @@ import png
 from itertools import groupby
 
 from login import LoggerInner
-from pageGetter import PageGetter
+from webUtils import WebUtils
 
 bs_username = "CYate"
 bs_password = "shadowmaster"
@@ -94,18 +94,14 @@ class AnalysePng(object):
 
 		for c in self.characters:			
 			
-			print "analysing ", c
-
 			found = False
 
 			for i in range(0, len(charmap)):
-				print "trying character ",i
 					
 				for rot in range(0,4):
 
 					if c == charmap[i]:
 						self.numbers.append(i)
-						print "found an ",i," : ", c
 						found = True
 						break
 
@@ -176,9 +172,6 @@ class AnalysePng(object):
 				temp2.append(reversed(line))
 			self.characters.append(temp2)
 		self.transpose()
-		
-		for char in self.characters:
-			print char
 
 		print "found ", len(self.characters), " characters"
 
@@ -208,15 +201,22 @@ class AnalysePng(object):
 
 
 LoggerInner(bs_username, bs_password, cookiefile)
-pageGetter = PageGetter(cookiefile)
+pageGetter = WebUtils(cookiefile, baseurl)
 
-#pngFilename = "numbersTest.png"
-#pageGetter.getPNG("/challenges/programming/numbers/tryout.php", pngFilename)
+pngFilename = "numbersTest.png"
 
-pngFilename = "bwFile_588x176.png"
+linkPath = "/challenges/programming/numbers/tryout.php"
+pageGetter.getPNG(linkPath, pngFilename)
+
 analyser = AnalysePng(pngFilename)
 analyser.analyse()
+
 print analyser.numbers
-analyser.convertToBW("outFile","png")
 
-
+solutionPath = "/challenges/programming/numbers/solution.php"
+numbers = (''.join(map(str, analyser.numbers)))
+print "numbers joined = ", numbers
+solutionParams = "?solution="
+solpath = "%s%s%s" %(solutionPath, solutionParams, numbers)
+print solpath
+print pageGetter.getHTML(solpath)
