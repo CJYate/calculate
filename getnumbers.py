@@ -15,6 +15,68 @@ cookiefile = "brightshadows.cookies"
 
 baseurl = "http://www.bright-shadows.net"
 
+charmap = [
+		# 0
+		[(0,1,1,1,0), 
+			(1,0,0,0,1),
+			(1,0,0,0,1),
+			(1,0,0,0,1),
+			(0,1,1,1,0)], 
+		# 1
+		[(0,0,1,0,0),
+			(0,1,1,0,0),
+			(1,0,1,0,0),
+			(0,0,1,0,0),
+			(1,1,1,1,1)],
+		# 2
+		[(0,1,1,1,0),
+			(1,0,0,0,1),
+			(0,0,1,1,0),
+			(0,1,0,0,0),
+			(1,1,1,1,1)],
+		# 3
+		[(0,1,1,1,0),
+			(1,0,0,0,1),
+			(0,0,1,1,1),
+			(1,0,0,0,1),
+			(0,1,1,1,0)],
+		# 4
+		[(0,0,1,0,0),
+			(0,1,0,0,0),
+			(1,0,0,1,0),
+			(1,1,1,1,1),
+			(0,0,0,1,0)],			
+		# 5
+		[(1,1,1,1,1),
+			(1,0,0,0,0),
+			(1,1,1,1,1),
+			(0,0,0,0,1),
+			(1,1,1,1,1)],
+		# 6
+		[(1,1,1,1,1),
+			(1,0,0,0,0),
+			(1,1,1,1,1),
+			(1,0,0,0,1),
+			(1,1,1,1,1)],
+		# 7
+		[(1,1,1,1,0),
+			(0,0,0,1,0),
+			(0,0,1,1,1),
+			(0,0,0,1,0),
+			(0,0,0,1,0)],
+		# 8
+		[(0,1,1,1,0),
+			(1,0,0,0,1),
+			(0,1,1,1,0),
+			(1,0,0,0,1),
+			(0,1,1,1,0)],
+		# 9
+		[(0,1,1,1,0),
+			(1,0,0,0,1),
+			(0,1,1,1,1),
+			(0,0,0,0,1),
+			(0,1,1,1,0)]
+		]
 
 class AnalysePng(object):
 	def __init__(self, filePath):
@@ -27,6 +89,29 @@ class AnalysePng(object):
 		self.characters = list()
 
 		self.getData()		
+
+	def analyse(self):
+
+		for c in self.characters:			
+			
+			print "analysing ", c
+
+			found = False
+
+			for i in range(0, len(charmap)):
+				print "trying character ",i
+					
+				for rot in range(0,4):
+
+					if c == charmap[i]:
+						self.numbers.append(i)
+						print "found an ",i," : ", c
+						found = True
+						break
+
+					c = zip(*c[::-1])
+
+				if found: break
 
 	def getData(self):
 		image = self.reader.read()
@@ -43,10 +128,7 @@ class AnalysePng(object):
 		hp = self.countPixelSize()
 		print "horizontal pixel size = ", hp
 		
-		# reduce to single pixel per row
 		self.removeZeroRows()
-
-		self.printSize()
 		self.transpose()
 		
 		vp = self.countPixelSize()
@@ -54,11 +136,12 @@ class AnalysePng(object):
 
 		self.removeZeroRows()
 		self.transpose()
-
+		
 		self.pixelise(hp, vp)
-
 		self.printSize()
-
+		
+		self.decompose()
+	
 	def getPixels(self):
 		for x in self.pixels:
 			self.rows.append(x)
@@ -81,20 +164,32 @@ class AnalysePng(object):
 		
 		self.rows = temp
 
+	def decompose(self):		
+
+		charsize = 5
+
+		self.transpose()
+		for i in xrange(0, len(self.rows), charsize):			
+			temp = self.rows[i:i+charsize]
+			temp2 = []
+			for line in temp:
+				temp2.append(reversed(line))
+			self.characters.append(temp2)
+		self.transpose()
+		
+		for char in self.characters:
+			print char
+
+		print "found ", len(self.characters), " characters"
+
 	def countPixelSize(self):
 
 		groups = []
 		for row in self.rows:
 			t = [len(list(group)) for char, group in groupby(row, lambda x: x == 1)]
-#			print t
-#			print min(t)
 			groups.append(min(t))
 
-#		print groups
-#		print min(groups)
 		return min(groups)
-#		return min(len(list(v) for g,v in itertools.groupby(self.rows, lambda x: x == 1) if g))
-			
 	
 	def convertToBW(self, outputFile, outputExtension):
 
@@ -115,9 +210,13 @@ class AnalysePng(object):
 LoggerInner(bs_username, bs_password, cookiefile)
 pageGetter = PageGetter(cookiefile)
 
-pngFilename = "numbersTest.png"
-pageGetter.getPNG("/challenges/programming/numbers/tryout.php", pngFilename)
+#pngFilename = "numbersTest.png"
+#pageGetter.getPNG("/challenges/programming/numbers/tryout.php", pngFilename)
 
+pngFilename = "bwFile_588x176.png"
 analyser = AnalysePng(pngFilename)
-analyser.convertToBW("bwFile","png")
+analyser.analyse()
+print analyser.numbers
+analyser.convertToBW("outFile","png")
+
 
