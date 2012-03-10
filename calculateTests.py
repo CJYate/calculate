@@ -1,6 +1,7 @@
 import unittest
 from calculate import Calculator
 import re
+import timeit
 
 class SympyTests(unittest.TestCase):
 	def testCalculatorEmptyInitialisation(self):
@@ -12,26 +13,26 @@ class SympyTests(unittest.TestCase):
 
 	def testCalc_a_2_eq_4(self):
 		c = Calculator('a_2=4')
-		c.Solve()
 		self.assertEqual(['a'], c.unknowns)
+		c.Solve()
 		self.assertEqual(2, c.result)
-
+	
 	def testCalc_a_1_eq_1(self):
 		c = Calculator('a_2=1')
-		c.Solve()
 		self.assertEqual(['a'], c.unknowns)
+		c.Solve()
 		self.assertEqual(1, c.result)
 
 	def testCalc_a_10_eq_None(self):		
 		c = Calculator('a_2=10')
-		c.Solve()
 		self.assertEqual(['a'], c.unknowns)
+		c.Solve()
 		self.assertEqual("no result", c.result)
 
 	def testCalc_a_0_eq_0(self):
 		c = Calculator('a_2=0')
-		c.Solve()
 		self.assertEqual(['a'], c.unknowns)
+		c.Solve()
 		self.assertEqual(0, c.result)
 
 	def testRegex(self):
@@ -50,21 +51,60 @@ class SympyTests(unittest.TestCase):
 
 	def testCalc_ab_22(self):
 		c = Calculator('a_2+b_3=12')
-		c.Solve()
 		self.assertEqual(['a','b'], c.unknowns)
+		c.Solve()
 		self.assertEqual(22, c.result)
 
 	def testCalc_ab_22_scaled(self):
 		c = Calculator('13*a_2+551*b_3=4460')
-		c.Solve()
 		self.assertEqual(['a','b'], c.unknowns)
+		c.Solve()
 		self.assertEqual(22, c.result)
 
-	def testCalc_ab_98(self):
+	def testReformat_simple(self):
+		eq = '13*a_2+551*b_3=283165'
+		exp = '+13*a**2+551*b**3-283165'
 		c = Calculator('13*a_2+551*b_3=283165')
+		self.assertEqual(exp, c.equation_m)	
+
+	def testSimpleSoln(self):
+		eq = '9*a_1+5*b_1=81'
+		c = Calculator(eq)
 		c.Solve()
+		print c.result
+
+	def testReformat_simple2(self):
+		eq = '13*a_2=-551*b_3+283165'
+		exp = '+13*a**2+551*b**3-283165'
+		c = Calculator('13*a_2+551*b_3=283165')
+		self.assertEqual(exp, c.equation_m)	
+
+
+	def testCalc_ab_98(self):
+		t= timeit.Timer()
+		c = Calculator('13*a_2+551*b_3=283165')
 		self.assertEqual(['a','b'], c.unknowns)
+		c.Solve()
 		self.assertEqual(98, c.result)
+		print t.timeit()
+
+
+	def testCalc_abcde_53682(self):
+		t= timeit.Timer()
+		c = Calculator('-515*a_2+5151*b_3+6611*c=1324*d_2-133*e+81398')
+		self.assertEqual(['a','b', 'c','d','e'], c.unknowns)
+		c.Solve()
+		self.assertEqual(53682, c.result)
+		print t.timeit()
+
+
+#	def testCalc_abcde_536828(self):		
+#		t= timeit.Timer()
+#		c = Calculator('-515*a_2+5151*b_3+6611*c=1324*d_2-1333*e-5511*f_2+444500')
+#		self.assertEqual(['a','b', 'c','d','e', 'f'], c.unknowns)
+#		c.Solve()
+#		self.assertEqual(536828, c.result)
+#		print t.timeit()
 
 if __name__ == '__main__':
 	unittest.main()
