@@ -1,8 +1,6 @@
 import os
 import re
 import math 
-import sympy 
-#from sympy.abc import a,b,c,d,e,f,g
 
 from login import LoggerInner
 from webUtils import WebUtils
@@ -68,18 +66,60 @@ def NonZeroSolutions(u, v, z, xValues, yValues):
 	maxK = max(kLim1, kLim2)
 
 	print 'mink = %d, maxk= %d'%(minK,maxK)
-	for k in range(minK, maxK):
-		xk = a*z + v*k/d	
-		yk = b*z - u*k/d
+	for k in range(minK, minK+1): # should be maxk
+		xk = a*z - v*k/d	
+		yk = b*z + u*k/d
 		print 'k = ',k
-		print 'xk = (%d*%d) + %d*%d/%d) = '%(xk, a, z, v, k, d)
-		print 'yk = (%d*%d) + %d*%d/%d) = '%(yk, b, z, v, k, d)
+		print 'xk %d = (%d*%d) + %d*%d/%d) = '%(xk, a, z, v, k, d)
+		print 'yk %d = (%d*%d) + %d*%d/%d) = '%(yk, b, z, v, k, d)
 
 		if xk in xValues and yk in yValues:
 
 			solutions.append((xk, yk))
 
 	return solutions
+
+def Tuplify(expression, negate = False):
+# turn things like 224242*a**2 into a tuple (coeff, symbol, exponent)
+	coeff = 0
+	symbol = ''
+	exponent = 0
+
+	if "**" in expression: #(expected true apart from the scalar)
+		t = expression.split("**")
+		exponent = int(t[1])
+		if "*" in t[0]:
+			t2 = t[0].split("*")
+			coeff = int(t2[0])
+			symbol = t2[1]
+		else:
+			if t[0][0] == '-':
+				coeff = -1
+			else:
+				coeff = 1
+			symbol = t[0][1::]
+	elif "*" in expression:
+		t = expression.split("*")
+		coeff = int(t[0])
+		symbol = t[1]
+		exponent = 1 
+	else:
+		if re.search("[a-z]", expression):
+			if expression[0] == '-':
+				coeff = -1
+			else: 
+				coeff = 1
+			
+			symbol = expression[0::]
+			exponent = 1
+		else:
+			coeff = int(expression)
+
+	if negate:
+		return (-coeff, symbol, exponent) 
+	else:
+		return (coeff, symbol, exponent) 
+
 
 class Calculator(object):
 	def __init__(self, inputLine):
@@ -93,23 +133,13 @@ class Calculator(object):
 
 	def Parse(self, inputLine):
 		equation = inputLine.replace('"', '')
-
 		equation = equation.replace("_", "**")		
-		
-		self.equation_m = self.Reformat(equation)
-		
-		equation = equation.replace("=", "==")
-		abc = re.compile('([a-z])')			
-		self.unknowns = sorted(set(abc.findall(equation)))
-		self.values = {}
-		
-		equation = abc.sub(r'self.values["\1"]', equation)		
-		self.equation_calc = equation
 
-	def Reformat(self, equation):
+		self.equation = equation
 		
 		split = equation.split('=')
-
+		
+		# prepend an explicit + if the lhs or rhs start without one
 		lhs = split[0]
 		if lhs[0] != '-':
 			lhs = "+" + lhs
@@ -117,19 +147,26 @@ class Calculator(object):
 		if rhs[0] != '-':
 			rhs = "+" + rhs
 	
-		rhs = rhs.replace("+", "minus")
-		rhs = rhs.replace("-", "plus")
-		rhs = rhs.replace("minus", "-")
-		rhs = rhs.replace("plus", "+")
+		# insert spaces
+		lhs = lhs.replace("+", " +")
+		lhs = lhs.replace("-", " -")
+		rhs = rhs.replace("+", " +")
+		rhs = rhs.replace("-", " -")
 		
-		equation = lhs + rhs
-		fun = sympy.sympify(equation)
+		self.args = []
 
-		print fun.args
-		self.args = fun.args
-		print "Reformatted : " + equation	
+		lhsItems = lhs.split()
+		for e in lhsItems:
+			self.args.append(Tuplify(e))
+		rhsItems = rhs.split()
+		for e in rhsItems:
+			self.args.append(Tuplify(e, True))
 
-		return equation
+		self.unknowns = []
+		for a in self.args:
+			if a[1] != '' and a[1] not in self.unknowns:
+				self.unknowns.append(a[1])
+		self.values = []
 
 	def Solve(self):
 		self.result = "no result"
@@ -140,32 +177,49 @@ class Calculator(object):
 		else:
 			self.SolveGrind()
 			
-	def FindPower(self, exp):
-		se = str(exp)
-		if "**" in se:
-			return int(se.split("**")[1])
-		else:
-			return 1
+#	def FindPower(self, exp):
+#		se = str(exp)
+#		if "**" in se:
+#			return int(se.split("**")[1])
+#		else:
+#			return 1
 
 	def SolveEEA(self):
-		print "EEA"
-	
-		print units
-		print squares
-		print cubes
+		print "Solve EEA self args = ",self.args
+		
+		scalars = [ a for a in self.args if a[1] == '' ]
+		
+		z = scalars[0][0]
+		u = self.args[1][0]
+		xPow = self.args[1][2]
 
-		z = -self.args[0]		
-		u = int(str(self.args[1]).split('*')[0])
-
-		xPow = self.FindPower(self.args[1])
-		v = int(str(self.args[2]).split('*')[0])
-		yPow = self.FindPower(self.args[2])
+		v = self.args[2][0]
+		yPow = self.args[2][2]
 
 		ranges = [units, squares, cubes]
+		
+		self.result = [] 		
+		results = NonZeroSolutions(u, v, z, ranges[xPow-1], ranges[yPow-1])
 
-		print 'u %d, v %d, z %d'%(u,v,z) 
-		print NonZeroSolutions(u, v, z, ranges[xPow-1], ranges[yPow-1])
+		for r in results:
+			if xPow == 1:
+				tx = r[0]
+			elif xPow == 2:				
+				tx = squares.index(r[0])
+			elif xPow == 3:
+				tx = cubes.index(r[0])
+			if yPow == 1:
+				ty = r[1]	
+			elif yPow == 2:
+				ty = squares.index(r[1])
+			elif yPow == 3:
+				ty = cubes.index(r[1])
+			self.result.append((tx, ty))
 
+		if len(self.result) == 1:
+			self.stringResult = "%d%d"%(self.result[0][0],self.result[0][1])
+		else:
+			self.stringResult = "Multiple!"
 # solns = NonZeroSolutions(9,5,81,9,9)
 #		print solns
 
@@ -203,7 +257,7 @@ class Calculator(object):
 				self.result = r
 
 				break
-			
+		self.stringResult = "ground"
 
 if __name__ == '__main__':
 	LoggerInner(bs_username, bs_password, cookiefile)

@@ -53,31 +53,34 @@ class SympyTests(unittest.TestCase):
 		c = Calculator('a_2+b_3=12')
 		self.assertEqual(['a','b'], c.unknowns)
 		c.Solve()
-		self.assertEqual(22, c.result)
+		self.assertEqual('22', c.stringResult)
 
 	def testCalc_ab_22_scaled(self):
 		c = Calculator('13*a_2+551*b_3=4460')
 		self.assertEqual(['a','b'], c.unknowns)
 		c.Solve()
-		self.assertEqual(22, c.result)
+		self.assertEqual('22', c.stringResult)
 
 	def testReformat_simple(self):
 		eq = '13*a_2+551*b_3=283165'
-		exp = '+13*a**2+551*b**3-283165'
+##		exp = '+13*a**2+551*b**3-283165'
+		exp = '13*a**2+551*b**3=283165'
 		c = Calculator('13*a_2+551*b_3=283165')
-		self.assertEqual(exp, c.equation_m)	
+		self.assertEqual(exp, c.equation)	
 
 	def testSimpleSoln(self):
 		eq = '9*a_1+5*b_1=81'
 		c = Calculator(eq)
 		c.Solve()
-		print c.result
+		exp = [(9, 4), (0, 9)]
+		self.assertEqual(exp, c.result)	
 
 	def testReformat_simple2(self):
 		eq = '13*a_2=-551*b_3+283165'
-		exp = '+13*a**2+551*b**3-283165'
+##		exp = '+13*a**2+551*b**3-283165'		
+		exp = '13*a**2+551*b**3=283165'
 		c = Calculator('13*a_2+551*b_3=283165')
-		self.assertEqual(exp, c.equation_m)	
+		self.assertEqual(exp, c.equation)	
 
 
 	def testCalc_ab_98(self):
@@ -85,7 +88,7 @@ class SympyTests(unittest.TestCase):
 		c = Calculator('13*a_2+551*b_3=283165')
 		self.assertEqual(['a','b'], c.unknowns)
 		c.Solve()
-		self.assertEqual(98, c.result)
+		self.assertEqual('98', c.stringResult)
 		print t.timeit()
 
 
@@ -94,7 +97,7 @@ class SympyTests(unittest.TestCase):
 		c = Calculator('-515*a_2+5151*b_3+6611*c=1324*d_2-133*e+81398')
 		self.assertEqual(['a','b', 'c','d','e'], c.unknowns)
 		c.Solve()
-		self.assertEqual(53682, c.result)
+		self.assertEqual(53682, c.stringResult)
 		print t.timeit()
 
 
