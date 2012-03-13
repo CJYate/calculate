@@ -1,9 +1,8 @@
 import unittest
 from calculate import Calculator
 import re
-import timeit
 
-class SympyTests(unittest.TestCase):
+class CalculatorTests(unittest.TestCase):
 	def testCalculatorEmptyInitialisation(self):
 		self.assertRaises(ValueError,Calculator, '')
 
@@ -82,7 +81,6 @@ class SympyTests(unittest.TestCase):
 		c = Calculator('13*a_2+551*b_3=283165')
 		self.assertEqual(exp, c.equation)	
 
-
 	def testCalc_ab_98(self):
 		t= timeit.Timer()
 		c = Calculator('13*a_2+551*b_3=283165')
@@ -99,15 +97,6 @@ class SympyTests(unittest.TestCase):
 		c.Solve()
 		self.assertEqual(53682, c.stringResult)
 		print t.timeit()
-
-
-#	def testCalc_abcde_536828(self):		
-#		t= timeit.Timer()
-#		c = Calculator('-515*a_2+5151*b_3+6611*c=1324*d_2-1333*e-5511*f_2+444500')
-#		self.assertEqual(['a','b', 'c','d','e', 'f'], c.unknowns)
-#		c.Solve()
-#		self.assertEqual(536828, c.result)
-#		print t.timeit()
 
 if __name__ == '__main__':
 	unittest.main()
