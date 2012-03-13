@@ -3,13 +3,14 @@ import urllib
 import urllib2
 import cookielib
 import png
+import getpass
 from itertools import groupby
 
 from login import LoggerInner
 from webUtils import WebUtils
 
 bs_username = "CYate"
-bs_password = "shadowmaster"
+bs_password = ""
 
 cookiefile = "brightshadows.cookies"
 
@@ -198,8 +199,8 @@ class AnalysePng(object):
 		fout = open(outputPath, "wb")
 		picout.write(fout, pix)
 		print "B/W image written to ",outputPath
-
-
+        
+bs_password = getpass.getpass("Enter password:")
 LoggerInner(bs_username, bs_password, cookiefile)
 pageGetter = WebUtils(cookiefile, baseurl)
 
