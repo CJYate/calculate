@@ -1,6 +1,7 @@
 import os
 import re
 import math 
+import getpass
 
 from login import LoggerInner
 from webUtils import WebUtils
@@ -260,6 +261,7 @@ class Calculator(object):
 		self.stringResult = "ground"
 
 if __name__ == '__main__':
+	bs_password = getpass.getpass("Enter password:")
 	LoggerInner(bs_username, bs_password, cookiefile)
 	pageGetter = WebUtils(cookiefile, baseurl)
 	problem = pageGetter.getHTML(linkPath)
