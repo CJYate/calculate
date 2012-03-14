@@ -1,5 +1,6 @@
 import unittest
 from calculate import Calculator
+import timeit
 import re
 
 class CalculatorTests(unittest.TestCase):
@@ -97,6 +98,13 @@ class CalculatorTests(unittest.TestCase):
 		c.Solve()
 		self.assertEqual(53682, c.stringResult)
 		print t.timeit()
+
+	def testCalcReal(self):
+		c = Calculator('4759*a_3-6771*b_1-7214*c_3=8649*d_3-3505*e_3-114*f_1-2430507')
+		self.assertEqual(['a','b', 'c','d','e', 'f'], c.unknowns)
+		 
+		c.Solve()
+		self.assertEqual(53682, c.stringResult)
 
 if __name__ == '__main__':
 	unittest.main()

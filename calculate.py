@@ -1,11 +1,12 @@
-import os
+import sys
 import re
-import math 
 import getpass
 
+import sympy
+
+import matrix
 from login import LoggerInner
 from webUtils import WebUtils
-import fractions
 
 bs_username = "cYate"
 bs_password = ""
@@ -21,64 +22,6 @@ solutionPath = challengepath + "/solution.php"
 units = range(0, 10)
 squares = [x**2 for x in range(0, 10)]
 cubes = [x**3 for x in range(0, 10)]
-
-def ExtendedEuclid(u, v):
-	u1 = 1
-	u2 = 0
-	u3 = u
-	v1 = 0
-	v2 = 1
-	v3 = v
-	while v3 != 0:
-		q = u3 / v3
-		t1 = u1 - q*v1
-		t2 = u2 - q*v2
-		t3 = u3 - q*v3
-		u1 = v1
-		u2 = v2
-		u3 = v3
-		v1 = t1
-		v2 = t2
-		v3 = t3
-	return u1, u2, u3
-
-def NonZeroSolutions(u, v, z, xValues, yValues):
-	print 'get nonzero solutions for ux + vy = z where u = %d, v = %d, z = %d'%(u,v,z)
-	print 'xValues in ',xValues
-	print 'yValues in ',yValues
-	
-	a,b,d = ExtendedEuclid(u,v)
-
-	print 'a = %d, b = %d, d = %d'%(a,b,d)
-	print 'ua+vb = ',(u*a+v*b)
-	
-	solutions = []
-
-	print 'to get ua+vb = %d...'%z
-
-	# xk = a + (551)k (a=212)
-	# yk = b - (13)k (b=-5)
-	kLim1 = ((abs(a)*z) / v) + 1 # to get xk > 0
-	print 'klim1= abs(%d/%d)+1 = %d'%((a*z),v,kLim1)
-	kLim2 = ((abs(b)*z) / u) + 1 # to get yk > 0
-	print 'klim2= abs(%d/%d)+1 = %d'%((b*z),u,kLim2)
-
-	minK = min(kLim1, kLim2)
-	maxK = max(kLim1, kLim2)
-
-	print 'mink = %d, maxk= %d'%(minK,maxK)
-	for k in range(minK, minK+1): # should be maxk
-		xk = a*z - v*k/d	
-		yk = b*z + u*k/d
-		print 'k = ',k
-		print 'xk %d = (%d*%d) + %d*%d/%d) = '%(xk, a, z, v, k, d)
-		print 'yk %d = (%d*%d) + %d*%d/%d) = '%(yk, b, z, v, k, d)
-
-		if xk in xValues and yk in yValues:
-
-			solutions.append((xk, yk))
-
-	return solutions
 
 def Tuplify(expression, negate = False):
 # turn things like 224242*a**2 into a tuple (coeff, symbol, exponent)
@@ -164,111 +107,48 @@ class Calculator(object):
 			self.args.append(Tuplify(e, True))
 
 		self.unknowns = []
+		self.coeffs = []
 		for a in self.args:
+			self.coeffs.append(a[0])
 			if a[1] != '' and a[1] not in self.unknowns:
 				self.unknowns.append(a[1])
 		self.values = []
+
+		print "unknowns: ",self.unknowns
+		print "coeffs: ",self.coeffs
 
 	def Solve(self):
 		self.result = "no result"
 
 		m1 = len(self.unknowns)
-		if m1 == 2:
-			self.SolveEEA()
-		else:
-			self.SolveGrind()
-			
-#	def FindPower(self, exp):
-#		se = str(exp)
-#		if "**" in se:
-#			return int(se.split("**")[1])
+
+		mat = sympy.Matrix([self.coeffs[:-1]]).transpose()
+		mat2 = matrix.appendIdentity(mat)
+		a1 = matrix.unimod(mat2)
+		print a1
+		a2 = mat2.rref()
+		print a2
+
+#		if m1 == 2:
+#			self.SolveEEA()
 #		else:
-#			return 1
-
-	def SolveEEA(self):
-		print "Solve EEA self args = ",self.args
-		
-		scalars = [ a for a in self.args if a[1] == '' ]
-		
-		z = scalars[0][0]
-		u = self.args[1][0]
-		xPow = self.args[1][2]
-
-		v = self.args[2][0]
-		yPow = self.args[2][2]
-
-		ranges = [units, squares, cubes]
-		
-		self.result = [] 		
-		results = NonZeroSolutions(u, v, z, ranges[xPow-1], ranges[yPow-1])
-
-		for r in results:
-			if xPow == 1:
-				tx = r[0]
-			elif xPow == 2:				
-				tx = squares.index(r[0])
-			elif xPow == 3:
-				tx = cubes.index(r[0])
-			if yPow == 1:
-				ty = r[1]	
-			elif yPow == 2:
-				ty = squares.index(r[1])
-			elif yPow == 3:
-				ty = cubes.index(r[1])
-			self.result.append((tx, ty))
-
-		if len(self.result) == 1:
-			self.stringResult = "%d%d"%(self.result[0][0],self.result[0][1])
-		else:
-			self.stringResult = "Multiple!"
-# solns = NonZeroSolutions(9,5,81,9,9)
-#		print solns
-
-#		a,b,d = self.eea(13,551)
-#		a,b,d = self.eea(352,168)
-#		a,b,d = self.eea(3458,4864)
-#		a,b,d = self.eea(-3463, 6843)
-#		a,b,d = self.eea(45,25)
-#		print (a,b,d)
-#		a,b,d = self.eea(9,5)
-#		print (a,b,d)
-#		a,b,d = self.eea(49,29)
-#		print (a,b,d)
-#
-	def SolveGrind(self):
-	
-		m2 = len(self.unknowns)
-		m = 10 ** m2	
-#		print "max = ", m
-		for i in range(0, m-1):
-			tempi = i
-
-			for u in self.unknowns:				
-				self.values[u] = tempi % 10
-				tempi /= 10
-
-			res = eval(self.equation_calc)
-			if res:
-				r = 0
-				for u in self.unknowns[:-1]:
-					r += self.values[u]
-					r *= 10
-				r += self.values[self.unknowns[-1]]
-
-				self.result = r
-
-				break
-		self.stringResult = "ground"
+#			self.SolveGrind()
 
 if __name__ == '__main__':
-	bs_password = getpass.getpass("Enter password:")
+	if len(sys.argv) == 2:
+		bs_password = sys.argv[1]
+	else:
+		bs_password = getpass.getpass("Enter password:")
+
 	LoggerInner(bs_username, bs_password, cookiefile)
 	pageGetter = WebUtils(cookiefile, baseurl)
+	
 	problem = pageGetter.getHTML(linkPath)
 	print problem
+	
 	v = re.search('\"[0-9a-z+-=_*]*\"', problem)
 	print v.group()
-#	vv = v.group(0)[1:-1]
+	
 	calculator = Calculator(v.group())
 	calculator.Solve()
 	
