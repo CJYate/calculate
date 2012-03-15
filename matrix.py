@@ -21,8 +21,7 @@ def calculateGcd(matrix):
 
         
 def isLhsJustGcd(gcd, matrix):
-    lhs = getLhs(matrix)
-    print lhs
+    lhs = getLhs(matrix)    
     nonzeros = [x for x in lhs if x != 0]    
     if len(nonzeros) > 1:        
         return False
@@ -80,29 +79,23 @@ def unimod(matrix, eps = 1.0/(10**10)):
     gcd = calculateGcd(lhs)
 
     while not isLhsJustGcd(gcd, matrix):        
-        print "top of loop\n",matrix
         
         for y in range(0,h):
             # if the leftmost item is negative, negate the whole row
             if matrix[y,0] < 0:
                 matrix[y,:] = -matrix[y,:]
-        print "removed negatives"                              
          
         minRow = findMinRow(matrix)
         
         for y2 in range(0, h): # eliminate y           
             if y2 == minRow:
                 continue
-            print "reducing row ",y2
             if matrix[y2,0] == 0:
                 continue
                 
             c = int(matrix[y2,0] / matrix[minRow,0])
-            print "row(%d) -> row(%d) - %d * row(%d)"%(y2, y2, c, minRow)
             matrix.row(y2, lambda v, x: v-c*matrix[minRow, x])               
-        print matrix
-
+       
         matrix = sort(matrix)
-        
-        print "end of loop\n",matrix    
+               
     return matrix
