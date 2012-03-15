@@ -221,38 +221,35 @@ class Calculator(object):
         print "raw_unknowns: ",self.raw_unknowns
         print "coeffs: ", self.coeffs
         
-        a_t = sympy.Matrix(self._sortedCoeffs())
-        print "a_t = \n",a_t
+        a_t = sympy.Matrix(self._sortedCoeffs())        
         a_tI = matrix.appendIdentity(a_t)
         print "a_tI = \n",a_tI
         RT = matrix.unimod(a_tI)
-        print "RT = \n",RT
-        R = RT[:,0]
-        print "R = \n",R
+        R = RT[:,0]        
         T = RT[:,1:]
         print "T = \n",T
         R_t = R.transpose()
-        print "R_t = \n",R_t
         T_t = T.transpose()
         print "T_t = \n",T_t
         
         k_list = []
         for i in range(0, len(R)):
             k_list.append(sympy.Symbol('k_%d'%i))
-        print "ks = ", k_list
-        
         K = sympy.Matrix(k_list)
-        print "K = \n",K       
         
         R_txK = R_t * K
-        print "R_txK = ",R_txK
         if R_txK.shape != (1,1):
             raise TypeError('expected 1x1')
         
         K[0] = self.answer
         
         unknowns = T_t * K
-        print "unknowns: \n", unknowns
+        print "unknowns values: \n", unknowns
+        print self.unknowns
+        print units 
+        print squares 
+        print cubes 
+
         
     def SolveEEA(self):
         print "Solve EEA self args = ",self.args
