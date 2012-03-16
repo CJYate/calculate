@@ -21,7 +21,7 @@ def calculateGcd(matrix):
 
         
 def isLhsJustGcd(gcd, matrix):
-    lhs = getLhs(matrix)
+    lhs = getLhs(matrix)    
     nonzeros = [x for x in lhs if x != 0]    
     if len(nonzeros) > 1:        
         return False
@@ -96,34 +96,5 @@ def unimod(matrix, eps = 1.0/(10**10)):
             c = int(matrix[y2,0] / matrix[minRow,0])
             matrix.row(y2, lambda v, x: v-c*matrix[minRow, x])               
         matrix = sort(matrix)
-        
-    return matrix
-
-def irref(matrix, eps = 1.0/(10**10)):
-    """ matrix to reduced row echelon integers
-    """
-    (h,w) = matrix.shape
-    
-    lhs = getLhs(matrix)
-    gcd = calculateGcd(lhs)
-
-    while not isLhsJustGcd(gcd, matrix):        
-        
-        for y in range(0,h):
-            # if the leftmost item is negative, negate the whole row
-            if matrix[y,0] < 0:
-                matrix[y,:] = -matrix[y,:]
-         
-        minRow = findMinRow(matrix)
-        
-        for y2 in range(0, h): # eliminate y           
-            if y2 == minRow:
-                continue
-            if matrix[y2,0] == 0:
-                continue
-                
-            c = int(matrix[y2,0] / matrix[minRow,0])
-            matrix.row(y2, lambda v, x: v-c*matrix[minRow, x])               
-        matrix = sort(matrix)
-        
+               
     return matrix

@@ -16,7 +16,6 @@ class MatrixTest(unittest.TestCase):
     def testGcd2(self):
         m = sympy.Matrix([[2,6,12,26]])
         m2 = matrix.appendIdentity(m)
-        print "m2 = ",m2
         gcd = matrix.calculateGcd(m2)
         exp = 2
         self.assertEqual(exp, gcd)
@@ -25,7 +24,7 @@ class MatrixTest(unittest.TestCase):
         m = sympy.Matrix([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
         lhs = matrix.getLhs(m)
         exp = sympy.Matrix([[1],[5],[9],[13]])
-        self.assertEqual(exp, lhs)
+        self.assertEqual(exp, lhs)        
         
     def testAppend2x2(self):
         m = sympy.Matrix([5,9])
@@ -53,13 +52,19 @@ class MatrixTest(unittest.TestCase):
         m3 = matrix.unimod(m2)
         exp = sympy.Matrix([[1,1,1,-1],[0,7,0,-3],[0,-7,-5,6]])
         self.assertEqual(exp, m3)
-    
-    
+        
     def testUnimod8x8(self):
         m = sympy.Matrix([865, 4831, -6700, 7496, 8474, 2851, -5451])
         m2 = matrix.appendIdentity(m)
         m3 = matrix.unimod(m2)
-        exp = sympy.Matrix([[1,0,7,-2],[0,1,5,-2],[0,0,-17, 5]])
+        exp = sympy.Matrix([[1, 150, 0, 0,0,0,52,51],
+        [0,148,1,0,0,0,49,50],
+        [0,-198,0,0,0,1,-71,-67],
+        [0,-233,0,0,0,0,-88,-83],
+        [0,-373,0,-1,0,0,-132,-127],
+        [0,-566,0,0,1,0,-198,-192],
+        [0,-753,0,0,0,0,-261,-256]])
+        
         self.assertEqual(exp, m3)
         
     def testFindMinRow(self):

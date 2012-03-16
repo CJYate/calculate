@@ -3,10 +3,11 @@ import re
 import getpass
 
 import sympy
+import fractions
 
-import matrix
 from login import LoggerInner
 from webUtils import WebUtils
+import matrix 
 
 bs_username = "cYate"
 bs_password = ""
@@ -67,7 +68,7 @@ def Tuplify(expression, negate = False):
 
 class Calculator(object):
 	def __init__(self, inputLine):
-		if inputLine == "":					
+		if inputLine == "":			        
 			raise ValueError("inputLine cannot be null")
 
 		self.result = None
@@ -106,49 +107,102 @@ class Calculator(object):
 		for e in rhsItems:
 			self.args.append(Tuplify(e, True))
 
+		self.raw_unknowns = []
 		self.unknowns = []
-		self.coeffs = []
-		for a in self.args:
-			self.coeffs.append(a[0])
-			if a[1] != '' and a[1] not in self.unknowns:
-				self.unknowns.append(a[1])
+		self.coeffs = {}
+		self.answer = 0
+				
+		for a in self.args:			
+			if a[1] == '':
+				self.answer = a[0]
+			else:
+				u = "%s_%d"%(a[1],a[2])
+				
+				# look for all the a**3, b**2 etc	           
+				if u not in self.unknowns:
+					self.unknowns.append(u)
+					# collate coeffs
+					self.coeffs[u] = a[0]
+				else:
+					# collate coeffs
+					self.coeffs[u] = self.coeffs[u] + a[0]                    
+					
+				# collect all the a, b, etc
+				if a[1] not in self.raw_unknowns:
+					self.raw_unknowns.append(a[1])
+					
 		self.values = []
-
-		print "unknowns: ",self.unknowns
-		print "coeffs: ",self.coeffs
-
+		
 	def Solve(self):
 		self.result = "no result"
 
 		m1 = len(self.unknowns)
-
-		mat = sympy.Matrix([self.coeffs[:-1]]).transpose()
-		mat2 = matrix.appendIdentity(mat)
-		a1 = matrix.unimod(mat2)
-		print a1
-		a2 = mat2.rref()
-		print a2
-
-#		if m1 == 2:
-#			self.SolveEEA()
+		if m1 == 2:
+			self.SolveEEA()
+		else:
+			self.SolveMatrix()
+			
+#	def FindPower(self, exp):
+#		se = str(exp)
+#		if "**" in se:
+#			return int(se.split("**")[1])
 #		else:
-#			self.SolveGrind()
+#			return 1
+
+	def _sortedCoeffs(self):
+		keys = self.unknowns
+		print "ks = ",keys
+		keys.sort()
+		return map(self.coeffs.get, keys)
+		
+	def SolveMatrix(self):
+		print "Matrix solution"
+		
+		print "unknowns: ",self.unknowns
+		print "raw_unknowns: ",self.raw_unknowns
+		print "coeffs: ", self.coeffs
+		
+		a_t = sympy.Matrix(self._sortedCoeffs())		
+		a_tI = matrix.appendIdentity(a_t)
+		print "a_tI = \n",a_tI
+		RT = matrix.unimod(a_tI)
+		R = RT[:,0]		
+		T = RT[:,1:]
+		print "T = \n",T
+		R_t = R.transpose()
+		T_t = T.transpose()
+		print "T_t = \n",T_t
+		
+		k_list = []
+		for i in range(0, len(R)):
+			k_list.append(sympy.Symbol('k_%d'%i))
+		K = sympy.Matrix(k_list)
+		
+		R_txK = R_t * K
+		if R_txK.shape != (1,1):
+			raise TypeError('expected 1x1')
+		
+		K[0] = self.answer
+#		print "eigenvals = ",T_t.eigenvals()  
+#		print "eigenvects = ",T_t.eigenvects()  
+		unknowns = T_t * K
+#		print "LUsolve -> \n",T_t.LUsolve(K)
+		print "LUdecomp = \n",T_t.LUdecomposition()
+		print "unknowns values: \n", unknowns
+		print self.unknowns
+		print units 
+		print squares 
+		print cubes 
 
 if __name__ == '__main__':
-	if len(sys.argv) == 2:
-		bs_password = sys.argv[1]
-	else:
-		bs_password = getpass.getpass("Enter password:")
-
+	bs_password = getpass.getpass("Enter password:")
 	LoggerInner(bs_username, bs_password, cookiefile)
 	pageGetter = WebUtils(cookiefile, baseurl)
-	
 	problem = pageGetter.getHTML(linkPath)
 	print problem
-	
 	v = re.search('\"[0-9a-z+-=_*]*\"', problem)
 	print v.group()
-	
+#	vv = v.group(0)[1:-1]
 	calculator = Calculator(v.group())
 	calculator.Solve()
 	
