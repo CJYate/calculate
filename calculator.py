@@ -64,7 +64,7 @@ class Calculator(object):
                     self.raw_unknowns.append(a[1])
 
     def Solve(self):
-        self.result = "no result"
+        #self.result = "no result"
 #        self.stringResult = SolveMatrix(self.raw_unknowns, self.unknowns,
 #                                        self.coeffs, self.sumTotal)
         self.stringResult = SolveGrind(self.raw_unknowns, self.unknowns,

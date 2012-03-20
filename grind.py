@@ -35,7 +35,7 @@ def _sorted_coeffs(unknowns, coeffs):
 def SolveGrind(raw_unknowns, unknowns, coeffs, negTotal):		
 
 	sumTotal = -negTotal
-	print "solve brute force - raw unknow = %s\n unknonw = %s\n coeffs = %s, sum = %s " % (raw_unknowns, unknowns, coeffs, sumTotal)
+	#print "solve brute force - raw unknow = %s\n unknonw = %s\n coeffs = %s, sum = %s " % (raw_unknowns, unknowns, coeffs, sumTotal)
 	
 	problem_size = len(unknowns)
 	
@@ -51,7 +51,7 @@ def SolveGrind(raw_unknowns, unknowns, coeffs, negTotal):
 		else:
 			continue
 	prod = prod + ')'
-	print "prod = ",prod
+	#print "prod = ",prod
 	
 	sorted_coefficients = _sorted_coeffs(unknowns, coeffs)
 	print "sorted coeffs = ", sorted_coefficients
