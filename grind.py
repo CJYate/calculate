@@ -32,8 +32,9 @@ def _sorted_coeffs(unknowns, coeffs):
 
 
 
-def SolveGrind(raw_unknowns, unknowns, coeffs, sumTotal):		
-	
+def SolveGrind(raw_unknowns, unknowns, coeffs, negTotal):		
+
+	sumTotal = -negTotal
 	print "solve brute force - raw unknow = %s\n unknonw = %s\n coeffs = %s, sum = %s " % (raw_unknowns, unknowns, coeffs, sumTotal)
 	
 	problem_size = len(unknowns)
@@ -60,9 +61,14 @@ def SolveGrind(raw_unknowns, unknowns, coeffs, sumTotal):
 		sum = 0
 		for i in range(0, problem_size):
 			sum = sum + sorted_coefficients[i] * option[i]
-		print "count = %i sum = %i" % (count, sum)
+		#print "count = %i sum = %i" % (count, sum)
+
 		if sum == sumTotal:
-			print "Found an Answer!,", option
+			print "Found an Answer %s, %s!," % (count, option)
+			break
+		
 		count = count + 1
-	stringResult = "ground"
+	
+	stringResult = str(count).zfill(problem_size)
+	
 	return stringResult
