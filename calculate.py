@@ -1,9 +1,8 @@
-import sys
 import re
 import getpass
 
 from login import LoggerInner
-from webUtils import WebUtils
+from webutils import WebUtils
 
 from calculator import Calculator
 
@@ -29,9 +28,9 @@ if __name__ == '__main__':
 
     calculator = Calculator(v.group())
     calculator.Solve()
-    
+
     print calculator.result
-    
+
     solutionParams = "?solution="
     solpath = "%s%s%s" %(solutionPath, solutionParams, "")
     print solpath

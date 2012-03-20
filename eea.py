@@ -27,9 +27,9 @@
 #linkPath = challengepath + "/tryout.php"
 #solutionPath = challengepath + "/solution.php"
 #
-#units = range(0, 10)
-#squares = [x**2 for x in range(0, 10)]
-#cubes = [x**3 for x in range(0, 10)]
+#UNITS = range(0, 10)
+#SQUARES = [x**2 for x in range(0, 10)]
+#CUBES = [x**3 for x in range(0, 10)]
 
 def ExtendedEuclid(u, v):
 	u1 = 1
@@ -52,14 +52,14 @@ def ExtendedEuclid(u, v):
 	return u1, u2, u3
 
 def NonZeroSolutions(u, v, z, xValues, yValues):
-	print 'get nonzero solutions for ux + vy = z where u = %d, v = %d, z = %d'%(u,v,z)
-	print 'xValues in ',xValues
-	print 'yValues in ',yValues
+	print 'get nonzero solutions for ux + vy = z where u = %d, v = %d, z = %d'%(u, v, z)
+	print 'xValues in ', xValues
+	print 'yValues in ', yValues
 	
-	a,b,d = ExtendedEuclid(u,v)
+	a, b, d = ExtendedEuclid(u, v)
 
-	print 'a = %d, b = %d, d = %d'%(a,b,d)
-	print 'ua+vb = ',(u*a+v*b)
+	print 'a = %d, b = %d, d = %d'%(a, b, d)
+	print 'ua+vb = ', (u*a+v*b)
 	
 	solutions = []
 
@@ -68,18 +68,18 @@ def NonZeroSolutions(u, v, z, xValues, yValues):
 	# xk = a + (551)k (a=212)
 	# yk = b - (13)k (b=-5)
 	kLim1 = ((abs(a)*z) / v) + 1 # to get xk > 0
-	print 'klim1= abs(%d/%d)+1 = %d'%((a*z),v,kLim1)
+	print 'klim1= abs(%d/%d)+1 = %d'%((a*z), v, kLim1)
 	kLim2 = ((abs(b)*z) / u) + 1 # to get yk > 0
-	print 'klim2= abs(%d/%d)+1 = %d'%((b*z),u,kLim2)
+	print 'klim2= abs(%d/%d)+1 = %d'%((b*z), u, kLim2)
 
 	minK = min(kLim1, kLim2)
 	maxK = max(kLim1, kLim2)
 
-	print 'mink = %d, maxk= %d'%(minK,maxK)
+	print 'mink = %d, maxk= %d'%(minK, maxK)
 	for k in range(minK, minK+1): # should be maxk
 		xk = a*z - v*k/d	
 		yk = b*z + u*k/d
-		print 'k = ',k
+		print 'k = ', k
 		print 'xk %d = (%d*%d) + %d*%d/%d) = '%(xk, a, z, v, k, d)
 		print 'yk %d = (%d*%d) + %d*%d/%d) = '%(yk, b, z, v, k, d)
 
@@ -131,8 +131,13 @@ def NonZeroSolutions(u, v, z, xValues, yValues):
 #		return (coeff, symbol, exponent) 
 #
 #
+
+UNITS = range(0, 10)
+SQUARES = [x**2 for x in range(0, 10)]
+CUBES = [x**3 for x in range(0, 10)]
+
 def SolveEEA(args):
-		print "Solve EEA args = ",args
+		print "Solve EEA args = ", args
 		
 		scalars = [ a for a in args if a[1] == '' ]
 		
@@ -143,7 +148,7 @@ def SolveEEA(args):
 		v = args[2][0]
 		yPow = args[2][2]
 
-		ranges = [units, squares, cubes]
+		ranges = [UNITS, SQUARES, CUBES]
 		
 		result = [] 		
 		results = NonZeroSolutions(u, v, z, ranges[xPow-1], ranges[yPow-1])
@@ -152,33 +157,33 @@ def SolveEEA(args):
 			if xPow == 1:
 				tx = r[0]
 			elif xPow == 2:				
-				tx = squares.index(r[0])
+				tx = SQUARES.index(r[0])
 			elif xPow == 3:
-				tx = cubes.index(r[0])
+				tx = CUBES.index(r[0])
 			if yPow == 1:
 				ty = r[1]	
 			elif yPow == 2:
-				ty = squares.index(r[1])
+				ty = SQUARES.index(r[1])
 			elif yPow == 3:
-				ty = cubes.index(r[1])
+				ty = CUBES.index(r[1])
 			result.append((tx, ty))
 
 		if len(result) == 1:
-			stringResult = "%d%d"%(result[0][0],result[0][1])
+			return "%d%d"%(result[0][0],result[0][1])
 		else:
-			stringResult = "Multiple!"
+			return "Multiple!"
 
-# solns = NonZeroSolutions(9,5,81,9,9)
+# solns = NonZeroSolutions(9, 5, 81, 9, 9)
 #		print solns
 
-#		a,b,d = eea(13,551)
-#		a,b,d = eea(352,168)
-#		a,b,d = eea(3458,4864)
-#		a,b,d = eea(-3463, 6843)
-#		a,b,d = eea(45,25)
-#		print (a,b,d)
-#		a,b,d = eea(9,5)
-#		print (a,b,d)
-#		a,b,d = eea(49,29)
-#		print (a,b,d)
+#		a, b, d = eea(13, 551)
+#		a, b, d = eea(352, 168)
+#		a, b, d = eea(3458, 4864)
+#		a, b, d = eea(-3463, 6843)
+#		a, b, d = eea(45, 25)
+#		print (a, b, d)
+#		a, b, d = eea(9, 5)
+#		print (a, b, d)
+#		a, b, d = eea(49, 29)
+#		print (a, b, d)
 #

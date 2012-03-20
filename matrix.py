@@ -2,7 +2,7 @@ import fractions
 import sympy 
 
 def getLhs(matrix):
-    return matrix[:,0]    
+    return matrix[:, 0]    
     
 def calculateGcd(matrix):
     lhs = getLhs(matrix)
@@ -56,16 +56,16 @@ def findMinRow(matrix):
 
 def sort(matrix):
     # sort    
-    (h,w) = matrix.shape
+    (h, w) = matrix.shape
 
-    for t in range(1,h):        
-        for y in range(1,h):            
+    for _ in range(1, h):        
+        for y in range(1, h):            
             for x in range(0, w):
-                if matrix[y-1,x] > matrix[y,x]:
+                if matrix[y-1, x] > matrix[y, x]:
                     #   already correct
                     break;
-                if matrix[y-1,x] < matrix[y,x]:
-                    matrix.row_swap(y-1,y)    
+                if matrix[y-1, x] < matrix[y, x]:
+                    matrix.row_swap(y-1, y)    
                     break;
                      
     return matrix
@@ -73,27 +73,27 @@ def sort(matrix):
 def unimod(matrix, eps = 1.0/(10**10)):
     """ matrix to reduced row echelon
     """
-    (h,w) = matrix.shape
+    h = matrix.shape[0]
     
     lhs = getLhs(matrix)
     gcd = calculateGcd(lhs)
 
     while not isLhsJustGcd(gcd, matrix):        
         
-        for y in range(0,h):
+        for y in range(0, h):
             # if the leftmost item is negative, negate the whole row
-            if matrix[y,0] < 0:
-                matrix[y,:] = -matrix[y,:]
+            if matrix[y, 0] < 0:
+                matrix[y, :] = -matrix[y, :]
          
         minRow = findMinRow(matrix)
         
         for y2 in range(0, h): # eliminate y           
             if y2 == minRow:
                 continue
-            if matrix[y2,0] == 0:
+            if matrix[y2, 0] == 0:
                 continue
                 
-            c = int(matrix[y2,0] / matrix[minRow,0])
+            c = int(matrix[y2, 0] / matrix[minRow, 0])
             matrix.row(y2, lambda v, x: v-c*matrix[minRow, x])               
         matrix = sort(matrix)
                

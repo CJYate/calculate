@@ -13,25 +13,25 @@ class LoggerInner(object):
 		self.login = login
 		self.password = password
 
-		self.cj = cookielib.MozillaCookieJar(cookiefile)
+		self.cookie_jar = cookielib.MozillaCookieJar(cookiefile)
 
 		if(os.access(cookiefile, os.F_OK)):
-				self.cj.load()
+				self.cookie_jar.load()
 		self.opener = urllib2.build_opener(
-			urllib2.HTTPRedirectHandler(),
-			urllib2.HTTPHandler(debuglevel=0),
-			urllib2.HTTPSHandler(debuglevel=0),
-			urllib2.HTTPCookieProcessor(self.cj)
+			urllib2.HTTPRedirectHandler(), 
+			urllib2.HTTPHandler(debuglevel=0), 
+			urllib2.HTTPSHandler(debuglevel=0), 
+			urllib2.HTTPCookieProcessor(self.cookie_jar)
 		)
 		
 		self.loginToBrightShadows()
 
-		self.cj.save()
+		self.cookie_jar.save()
 
 	def loginToBrightShadows(self):
 		""" do a login """
 		params = urllib.urlencode({'edit_username':self.login, 
-								   'edit_password':self.password,
+								   'edit_password':self.password, 
 								   'submitted':'1'})
 
 		response = self.opener.open(baseurl + loginpath, params)
