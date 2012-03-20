@@ -52,14 +52,12 @@ class CalculatorTests(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testCalc_ab_22(self):
-        c = Calculator('a_2+b_3=12')
-        self.assertEqual(['a_2', 'b_3'], c.unknowns)
+        c = Calculator('a_2+b_3=12')        
         c.Solve()
         self.assertEqual('22', c.stringResult)
 
     def testCalc_ab_22_scaled(self):
         c = Calculator('13*a_2+551*b_3=4460')
-        self.assertEqual(['a_2', 'b_3'], c.unknowns)
         c.Solve()
         self.assertEqual('22', c.stringResult)
 
@@ -87,7 +85,7 @@ class CalculatorTests(unittest.TestCase):
     def testCalc_ab_98(self):
         timer = timeit.Timer()
         c = Calculator('13*a_2+551*b_3=283165')
-        self.assertEqual(['a_2', 'b_3'], c.unknowns)
+        self.assertEqual([('a', 2), ('b', 3)], c.unknowns)
         c.Solve()
         self.assertEqual('98', c.stringResult)
         print timer.timeit()
@@ -95,7 +93,7 @@ class CalculatorTests(unittest.TestCase):
     def test_calc_abcde_53682(self):
         timer = timeit.Timer()
         c = Calculator('-515*a_2+5151*b_3+6611*c=1324*d_2-133*e+81398')
-        self.assertEqual(['a_2', 'b_3', 'c_1', 'd_2', 'e_1'], c.unknowns)
+        self.assertEqual([('a', 2), ('b', 3), ('c', 1), ('d', 2), ('e', 1)], c.unknowns)
         c.Solve()
         self.assertEqual(53682, c.stringResult)
         print timer.timeit()
@@ -103,7 +101,7 @@ class CalculatorTests(unittest.TestCase):
     def testCalcReal(self):
         c = Calculator('4759*a_3-6771*b_1-7214*c_3=8649*d_3-' \
                        '3505*e_3-114*f_1-2430507')
-        self.assertEqual(['a_3', 'b_1', 'c_3', 'd_3', 'e_3', 'f_1'], c.unknowns)
+        self.assertEqual([('a', 3), ('b', 1), ('c', 3), ('d', 3), ('e', 3), ('f', 1)], c.unknowns)
 
         c.Solve()
         self.assertEqual(53682, c.stringResult)
