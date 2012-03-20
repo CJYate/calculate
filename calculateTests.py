@@ -98,13 +98,21 @@ class CalculatorTests(unittest.TestCase):
         self.assertEqual('53682', c.stringResult)
         print timer.timeit()
 
+    def test_calc_abccde(self):
+        timer = timeit.Timer()
+        c = Calculator('123*a_2+432*b_3-666*c_1=398*c_3-551*d_2+61*e_3-25412')
+        self.assertEqual([('a', 2), ('b', 3), ('c', 1), ('d', 2), ('e', 1)], c.unknowns)
+        c.Solve()
+        self.assertEqual('34567', c.stringResult)
+        print timer.timeit()
+
     def testCalcReal(self):
         c = Calculator('4759*a_3-6771*b_1-7214*c_3=8649*d_3-' \
                        '3505*e_3-114*f_1-2430507')
         self.assertEqual([('a', 3), ('b', 1), ('c', 3), ('d', 3), ('e', 3), ('f', 1)], c.unknowns)
 
         c.Solve()
-        self.assertEqual('646890', c.stringResult)
+        self.assertEqual('', c.stringResult)
 
 if __name__ == '__main__':
     unittest.main()
