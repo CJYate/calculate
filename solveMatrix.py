@@ -13,24 +13,15 @@ def _sortedCoeffs(unknowns, coeffs):
     keys.sort()
     return map(coeffs.get, keys)
     
-def SolveMatrix(raw_unknowns, unknowns, coeffs, sumTotal):
-    print "Matrix solution"
-    
-    # print "unknowns: ",unknowns
-    # print "raw_unknowns: ",raw_unknowns
-    # print "coeffs: ", coeffs
-    
+def _invertMatrix(unknowns, coeffs):
     a_t = sympy.Matrix(_sortedCoeffs(unknowns, coeffs))        
     a_tI = matrix.appendIdentity(a_t)
-    # print "a_tI = \n",a_tI
         
     RT = matrix.unimod(a_tI)
     R = RT[:,0]        
     T = RT[:,1:]
-    # print "T = \n",T
     R_t = R.transpose()
     T_t = T.transpose()
-    #print "T_t = \n",T_t
             
     k_symbols = []
     for i in range(0, len(R)):
@@ -41,18 +32,13 @@ def SolveMatrix(raw_unknowns, unknowns, coeffs, sumTotal):
     if R_txK.shape != (1,1):
         raise TypeError('expected 1x1')
     
-    # # >?!    
-    # if sumTotal < 0:
-        # print " negtating negative sumTotal WARNING!"
-        # sumTotal = -sumTotal
-    K[0] = sumTotal   
-    print "K[0] = %d"%(K[0])
+    # K[0] = sumTotal   
     
     unknownsMatrix = T_t * K
-    print "unknowns matrix: \n", unknownsMatrix
+    return unknownsMatrix
 
+def _getTerms(unknownsMatrix, unknowns):
     unknownTerms = []
-    
     assert(len(unknownsMatrix) == len(unknowns))
     
     for i in range(0, len(unknowns)):
@@ -63,48 +49,83 @@ def SolveMatrix(raw_unknowns, unknowns, coeffs, sumTotal):
         
         unknownTerms.append((unknowns[i], us_split))
             
-    print unknownTerms
+    return unknownTerms
+
+def _getKterm(term, unknown):
+    
+    mK = re.match('(\-?[0-9]*)\*?(K\[[0-9]\])', term)
+    if mK:
+        ti = mK.group(1)
+        if ti == '-':
+            ti = '-1'
+        elif ti == '':
+            ti = '1'
+        kCoeff = int(ti)
+        kTerm = mK.group(2)
+        if kCoeff == 1:
+            return (unknown, kTerm)
+        elif kCoeff == 1:
+            return (unknown, -kTerm)
+        else:
+                return (unknown, kCoeff * kTerm)
+
+
+def _findUValue(unknown, value):
+    tt = unknown.split("_")
+    unknownVar = tt[0]
+    unknownExp = tt[1]
+    list = { '1' : units, '2' : squares, '3' : cubes }[unknownExp]
+    print "searching for value %d for var %s in list: " \
+                            %(value,unknown),list
+    if value in list:
+        indexOfValue = list.index(value)
+        print "%s = %d"%(unknownVar,indexOfValue)
+        return (True, unknownVar, indexOfValue)
+    else:
+        return (False)
+
+def SolveMatrix(raw_unknowns, unknowns, coeffs, sumTotal):
+
+    print "Matrix solution"
+
+    unknownsMatrix = _invertMatrix(unknowns, coeffs)
+
+    print "unknowns matrix: \n", unknownsMatrix
+
+    unknownTerms = _getTerms(unknownsMatrix, unknowns)
         
     knowns = {}
-    
+    iterable = {}
+
     for i in range(0, len(unknowns)):    
         ut = unknownTerms[i]
         print "dealing with term %s",ut
 
+        if len(ut) == 1:
+            # probably just a value of k... 
+            # so this k directly equals a value a^[123]
+            # and we are probably going to need to iterate over it        
+            iterable.append(_getKterm())
+
+
         if len(ut) == 2:            
-            # we have a great chance at solving this part. It should be in the form Ak[i] , B. And will equal x^[123] where 0 <= x <= 9
+            # we have a great chance at solving this part. 
+            # It should be in the form Ak[i], B. 
+            # And will equal x^[123] where 0 <= x <= 9
             
             kTerm = ''
             kCoeff = 0
             scalar = 0
                 
-            nScalarTerms = 0
-            nKterms = 0
-            
-            #if len(ut[1]) == 2:#we expect a k part and a scalar part 
             for t in ut[1]:                                
                 mK = re.match('(\-?[0-9]*)\*?(K\[[0-9]\])', t)
                 mS = re.match('-?[0-9]+', t)
                 
                 if mK:                
-                    nKterms = nKterms + 1
-                    
-                    ti = mK.group(1)
-                    if ti == '-':
-                        ti = '-1'
-                    elif ti == '':
-                        ti = '1'
-                    kCoeff = int(ti)
-                    kTerm = mK.group(2)
-                                     
+                    kTerm = _getKterm()
                 elif mS:
-                    #print "is a scalar term"
-                    nScalarTerms = nScalarTerms + 1
                     scalar = int(t)
-                    #print "scalar = ",scalar
-                        
-              #  assert(nScalarTerms == 1)
-               # assert(nKterms == 1)
+
                 
             print "%d * %s + %d = %s"%(kCoeff, kTerm, scalar, unknowns[i])
           
@@ -114,72 +135,23 @@ def SolveMatrix(raw_unknowns, unknowns, coeffs, sumTotal):
                 kTermValue = scalar // kCoeff
                 knowns[kTerm] = kTermValue
                 
-            #print "%s = %d"%(kTerm, kTermValue)
-                        
             uValue = abs(scalar - kCoeff * kTermValue )                                    
-            #print "%s = %d"%(unknowns[i], uValue)
-                        
-            tt = unknowns[i].split("_")
-            unknownVar = tt[0]
-            unknownExp = tt[1]
-            #print "%s ^ %s..."%( unknownVar, unknownExp)
-            list = {
-                '1' : units,
-                '2' : squares,
-                '3' : cubes
-            }[unknownExp]
-            print "searching for value %d for var %s in list: "%(uValue,unknowns[i]),list
-            if uValue in list:
-                indexOfValue = list.index(uValue)
-                print "%s = %d"%(unknownVar,indexOfValue)
-                knowns[unknownVar] = indexOfValue                
+            
+            temp = _findUValue(unknowns[i], uValue)
+            if temp[0] == True:
+                print "found something :",temp
             else:
-                print "NOOOOOOOO!!! Could not find %d in expected list. Try something else..."%uValue
+                print "NOOOOOOOO!!! Could not find %d in expected list." \
+                        " Try something else..."%uValue
+
     print "known things:\n",knowns
     solution = ''
     for c in string.ascii_lowercase:
         #st = '%c'%c
         if c in knowns:
-            solution = solution + str(knowns[c])
+               solution = solution + str(knowns[c])
     
     print "returning solution ",solution
     print
     print
     return solution
-    
-def FunctionForRref():
-    
-    def fn(K):
-        # get unknowns bottom line
-        t = str(unknownsMatrix[-1])
-        print t
-        # replace k_n with K[n] (the variable name)
-        t2 = re.sub(r'k_([0-9])', r'K[\1]', t)
-        print t2
-        # make all terms additive and explicitly make coefficients negative
-        t3 = t2.replace(' - ', ' + -')
-        print t3
-        
-        terms = t3.split(' + ')
-        print terms
-        # find the denominator underneath each fraction
-        greatestDenominator = 1        
-        for tt in terms:
-                s = tt.split('/')
-                if len(s) == 2:
-                    d = int(s[1])
-                    if d > greatestDenominator:
-                        greatestDenominator = d
-        # recreate terms with this denominator multiplying through; also multiply through with the result of the equation 
-        terms2 = []
-        for tt in terms:
-            terms2.append('%d*(%s)'%(greatestDenominator,tt)) 
-        #K[0] = greatestDenominator * K[0]
-        print terms2
-        func = ''#'K[0] + '
-        func = func + ' + '.join(terms2)
-        # print "func = ",func
-        return eval(func)    
-    
-    print "fn = :\n",fn(K)        
-        
