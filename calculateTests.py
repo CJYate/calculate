@@ -101,7 +101,8 @@ class CalculatorTests(unittest.TestCase):
     def test_calc_abccde(self):
         timer = timeit.Timer()
         c = Calculator('123*a_2+432*b_3-666*c_1=398*c_3-551*d_2+61*e_3-25412')
-        self.assertEqual([('a', 2), ('b', 3), ('c', 1), ('d', 2), ('e', 1)], c.unknowns)
+        self.assertEqual([('a', 2), ('b', 3), ('c', 1), ('c', 3), ('d', 2), ('e', 3)], c.unknowns)
+        self.assertEqual(['a', 'b', 'c', 'd', 'e'], c.raw_unknowns)
         c.Solve()
         self.assertEqual('34567', c.stringResult)
         print timer.timeit()
@@ -112,7 +113,7 @@ class CalculatorTests(unittest.TestCase):
         self.assertEqual([('a', 3), ('b', 1), ('c', 3), ('d', 3), ('e', 3), ('f', 1)], c.unknowns)
 
         c.Solve()
-        self.assertEqual('', c.stringResult)
+        self.assertEqual('646890', c.stringResult)
 
 if __name__ == '__main__':
     unittest.main()
