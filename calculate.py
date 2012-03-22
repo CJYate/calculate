@@ -29,9 +29,9 @@ if __name__ == '__main__':
     calculator = Calculator(v.group())
     calculator.Solve()
 
-    print calculator.result
+#    print calculator.result
 
     solutionParams = "?solution="
-    solpath = "%s%s%s" %(solutionPath, solutionParams, "")
+    solpath = "%s%s%s" %(solutionPath, solutionParams, calculator.stringResult)
     print solpath
     print pageGetter.getHTML(solpath)

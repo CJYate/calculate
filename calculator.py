@@ -1,6 +1,6 @@
 from solvematrix import SolveMatrix
 from tuplify import Tuplify
-
+from grind import SolveGrind
 
 class Calculator(object):
     def __init__(self, inputLine):
@@ -48,8 +48,8 @@ class Calculator(object):
             if a[1] == '':
                 self.sumTotal = a[0]
             else:
-                u = "%s_%d" % (a[1], a[2])
-
+                #u = "%s_%d" % (a[1], a[2])
+                u = (a[1], a[2])
                 # look for all the a**3, b**2 etc
                 if u not in self.unknowns:
                     self.unknowns.append(u)
@@ -64,6 +64,8 @@ class Calculator(object):
                     self.raw_unknowns.append(a[1])
 
     def Solve(self):
-        self.result = "no result"
-        self.stringResult = SolveMatrix(self.raw_unknowns, self.unknowns,
-                                        self.coeffs, self.sumTotal)
+        #self.result = "no result"
+#        self.stringResult = SolveMatrix(self.raw_unknowns, self.unknowns,
+#                                        self.coeffs, self.sumTotal)
+        self.stringResult = SolveGrind(self.raw_unknowns, self.unknowns,
+                                       self.coeffs, self.sumTotal)
